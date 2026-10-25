@@ -1,0 +1,116 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --bg-page: #FAFAFA;
+  --surface: #FFFFFF;
+  --border-subtle: #E5E5E5;
+  --border-strong: #D4D4D8;
+  --text-primary: #1A1A1A;
+  --text-secondary: #71717A;
+  --accent: #5E6AD2;
+  --accent-hover: #4F59BD;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background-color: #FAFAFA;
+  color: #1A1A1A;
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom sleek light scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F4F4F5;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D4D4D8;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #A1A1AA;
+}
+
+/* Accessible focus ring utility */
+*:focus-visible {
+  outline: 2px solid #5E6AD2;
+  outline-offset: 2px;
+}
+
+/* Light glassmorphism panel styling */
+.fomi-glass {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid #E5E5E5;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.fomi-glass-subtle {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid #E5E5E5;
+}
+
+/* Light Shimmer animation bar */
+@keyframes shimmerLight {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  position: relative;
+  overflow: hidden;
+  background-color: #F4F4F5;
+}
+
+.animate-shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.65) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shimmerLight 1.8s infinite;
+}
+
+/* Smooth Bezier branch dash offset flow */
+@keyframes flowDash {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+
+.animate-dash-flow {
+  animation: flowDash 1.2s linear infinite;
+}

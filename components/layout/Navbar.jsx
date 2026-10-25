@@ -1,0 +1,225 @@
+'use client';
+
+import React, { useState } from 'react';
+import {
+  Search,
+  Bell,
+  Menu,
+  X,
+  CreditCard,
+  ChevronDown,
+  User,
+  Settings,
+  LogOut,
+  LayoutGrid,
+  GitBranch,
+  Images,
+  FolderKanban,
+} from 'lucide-react';
+import { cn } from '../../lib/utils';
+import Image from 'next/image';
+
+/**
+ * Main application header with segmented view switcher (Spatial Canvas vs Studio Grid),
+ * command palette trigger, and account status in premium light theme.
+ */
+export default function Navbar({
+  activeTool = 'image-gen',
+  onSelectTool,
+  credits = 148,
+  onOpenGallery,
+  onOpenAssets,
+  viewMode = 'canvas',
+  onToggleViewMode,
+  onOpenPalette,
+}) {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+
+  return (
+    <header className="sticky top-0 z-40 w-full border-b border-border-subtle bg-base-surface/95 backdrop-blur-md">
+      <div className="max-w-[1920px] mx-auto px-3 sm:px-5 h-13 flex items-center justify-between gap-4">
+        {/* Left: Brand / Logo */}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 cursor-pointer select-none">
+            <div className="w-7 h-7 rounded-btn bg-accent flex items-center justify-center text-white shadow-subtle">
+              <span className="font-semibold text-xs tracking-tight">F</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="font-semibold text-sm tracking-tight text-content-primary">FOMI</span>
+              <span className="text-[10px] font-medium tracking-wide px-1.5 py-0.5 rounded-btn bg-base-subtle text-content-secondary border border-border-subtle">
+                Canvas
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Center: Segmented View Switcher (Spatial Canvas vs Studio Grid) */}
+        <div className="flex items-center p-0.5 rounded-card bg-base-subtle border border-border-subtle">
+          <button
+            type="button"
+            onClick={() => onToggleViewMode?.('canvas')}
+            aria-pressed={viewMode === 'canvas'}
+            className={cn(
+              'flex items-center gap-1.5 px-3 py-1.5 rounded-btn text-xs font-medium transition-all duration-150 ease-premium',
+              viewMode === 'canvas'
+                ? 'bg-accent text-white shadow-subtle'
+                : 'text-content-secondary hover:text-content-primary hover:bg-base-surface/50'
+            )}
+          >
+            <GitBranch className="w-3.5 h-3.5" />
+            <span>Spatial Canvas</span>
+            <span className={cn(
+              'text-[9px] px-1 py-0.2 rounded-btn font-mono hidden sm:inline',
+              viewMode === 'canvas' ? 'bg-white/20 text-white' : 'bg-base-muted text-content-secondary'
+            )}>
+              Tree
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onToggleViewMode?.('grid')}
+            aria-pressed={viewMode === 'grid'}
+            className={cn(
+              'flex items-center gap-1.5 px-3 py-1.5 rounded-btn text-xs font-medium transition-all duration-150 ease-premium',
+              viewMode === 'grid'
+                ? 'bg-accent text-white shadow-subtle'
+                : 'text-content-secondary hover:text-content-primary hover:bg-base-surface/50'
+            )}
+          >
+            <LayoutGrid className="w-3.5 h-3.5" />
+            <span>Studio Grid</span>
+          </button>
+        </div>
+
+        {/* Right: Actions, Credits & Profile */}
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          {/* Command Palette Trigger (⌘K) */}
+          <button
+            type="button"
+            onClick={onOpenPalette}
+            aria-label="Open command palette (⌘K)"
+            className="hidden lg:flex items-center gap-2 px-2.5 py-1.5 rounded-btn bg-base-subtle hover:bg-base-muted border border-border-subtle text-xs text-content-secondary hover:text-content-primary transition-colors"
+          >
+            <Search className="w-3.5 h-3.5 text-content-secondary" />
+            <span className="font-normal">Search commands</span>
+            <kbd className="px-1.5 py-0.5 rounded-[4px] bg-base-surface text-[10px] font-mono text-content-secondary border border-border-subtle">
+              ⌘K
+            </kbd>
+          </button>
+
+          {/* Credits indicator: Subtle gray text, not a glowing badge */}
+          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-btn bg-base-subtle border border-border-subtle text-xs text-content-secondary font-normal">
+            <CreditCard className="w-3.5 h-3.5 text-content-secondary" />
+            <span className="font-medium text-content-primary">{credits}</span>
+            <span className="text-[11px] text-content-secondary">credits</span>
+          </div>
+
+          {/* Quick icon buttons */}
+          <button
+            type="button"
+            onClick={onOpenGallery}
+            aria-label="Open inspiration gallery"
+            title="Gallery"
+            className="p-2 rounded-btn text-content-secondary hover:text-content-primary hover:bg-base-subtle border border-transparent hover:border-border-subtle transition-colors hidden sm:inline-flex min-w-[34px] min-h-[34px] items-center justify-center"
+          >
+            <Images className="w-4 h-4" />
+          </button>
+
+          <button
+            type="button"
+            onClick={onOpenAssets}
+            aria-label="Open project assets"
+            title="Project Assets"
+            className="p-2 rounded-btn text-content-secondary hover:text-content-primary hover:bg-base-subtle border border-transparent hover:border-border-subtle transition-colors hidden sm:inline-flex min-w-[34px] min-h-[34px] items-center justify-center"
+          >
+            <FolderKanban className="w-4 h-4" />
+          </button>
+
+          {/* Notification bell */}
+          <button
+            type="button"
+            aria-label="View notifications"
+            title="Notifications"
+            className="relative p-2 rounded-btn text-content-secondary hover:text-content-primary hover:bg-base-subtle border border-transparent hover:border-border-subtle transition-colors min-w-[34px] min-h-[34px] flex items-center justify-center"
+          >
+            <Bell className="w-4 h-4" />
+            <span className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-accent" />
+          </button>
+
+          {/* Avatar / Account Dropdown */}
+          <div className="relative">
+            <button
+              type="button"
+              aria-label="User profile settings"
+              aria-expanded={userDropdownOpen}
+              onClick={() => setUserDropdownOpen((prev) => !prev)}
+              className="flex items-center gap-1.5 p-1 rounded-btn hover:bg-base-subtle border border-border-subtle transition-colors"
+            >
+              <div className="w-6 h-6 rounded-btn overflow-hidden bg-base-subtle flex items-center justify-center text-xs font-medium text-content-primary">
+                <Image
+                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80"
+                  alt="Sana Profile"
+                  width={24}
+                  height={24}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <ChevronDown className="w-3 h-3 text-content-secondary hidden sm:block mr-0.5" />
+            </button>
+
+            {/* Profile Dropdown Menu */}
+            {userDropdownOpen && (
+              <div className="absolute right-0 mt-1.5 w-52 rounded-panel bg-base-elevated border border-border-subtle p-1 shadow-floating z-50 animate-in fade-in zoom-in-95 duration-100">
+                <div className="px-3 py-2 border-b border-border-subtle mb-1">
+                  <p className="text-xs font-medium text-content-primary">Sana (Fashion Pro)</p>
+                  <p className="text-[11px] text-content-secondary truncate">sana@fomi.art</p>
+                  <div className="mt-1 flex items-center justify-between text-[11px] text-content-secondary">
+                    <span>Balance:</span>
+                    <span className="font-medium text-content-primary">{credits} credits</span>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setUserDropdownOpen(false)}
+                  className="w-full flex items-center gap-2 px-3 py-1.5 rounded-btn text-xs text-content-primary hover:bg-base-subtle transition-colors"
+                >
+                  <User className="w-3.5 h-3.5 text-content-secondary" />
+                  <span>Creator Profile</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setUserDropdownOpen(false)}
+                  className="w-full flex items-center gap-2 px-3 py-1.5 rounded-btn text-xs text-content-primary hover:bg-base-subtle transition-colors"
+                >
+                  <Settings className="w-3.5 h-3.5 text-content-secondary" />
+                  <span>Preferences</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setUserDropdownOpen(false)}
+                  className="w-full flex items-center gap-2 px-3 py-1.5 rounded-btn text-xs text-danger hover:bg-danger-subtle transition-colors"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Log out</span>
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Mobile hamburger toggle */}
+          <button
+            type="button"
+            aria-label="Toggle mobile menu"
+            onClick={() => setMobileMenuOpen((prev) => !prev)}
+            className="md:hidden p-2 rounded-btn text-content-secondary hover:text-content-primary hover:bg-base-subtle min-w-[36px] min-h-[36px] flex items-center justify-center"
+          >
+            {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+          </button>
+        </div>
+      </div>
+    </header>
+  );
+}
