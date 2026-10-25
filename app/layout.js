@@ -37,7 +37,7 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${dmSans.variable} ${jetbrainsMono.variable} scroll-smooth`}>
-      <body className="min-h-screen bg-base-bg text-content-primary font-sans antialiased selection:bg-accent selection:text-white flex flex-col">
+      <body className="min-h-screen bg-[#FAFAFA] text-[#1A1A1A] antialiased font-sans selection:bg-accent selection:text-white flex flex-col">
         {/* Accessibility skip-to-content anchor */}
         <a
           href="#main-content"

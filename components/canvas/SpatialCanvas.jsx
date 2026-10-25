@@ -113,7 +113,7 @@ export default function SpatialCanvas({
       onMouseUp={handleMouseUp}
       onWheel={handleWheel}
       className={cn(
-        'relative flex-1 w-full h-[calc(100vh-140px)] min-h-[580px] overflow-hidden rounded-panel select-none',
+        'relative flex-1 w-full min-h-[calc(100dvh-140px)] overflow-auto rounded-panel select-none',
         'bg-[#FAFAFA] border border-border-subtle shadow-subtle cursor-grab active:cursor-grabbing'
       )}
       style={{

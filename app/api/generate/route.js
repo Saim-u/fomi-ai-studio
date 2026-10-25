@@ -39,14 +39,12 @@ export async function POST(request) {
       name: 'Fomi Ultra 2.5',
     };
 
-    // Generate output array with picsum photos using seed
+    // Generate output array with Pollinations AI, driven by the prompt text.
+    // The prompt-hash seed makes every generation deterministic: same prompt => same image.
     const images = Array.from({ length: Math.min(count, 8) }).map((_, idx) => {
       const itemSeed = baseSeed + idx * 7919;
-      // Using picsum.photos with /seed/{seed}/{width}/{height}
-      // Note: restrict dimensions to reasonable web thumbnail resolution for fast loading
-      const renderW = Math.min(ratioConfig.width, 1024);
-      const renderH = Math.min(ratioConfig.height, 1024);
-      const url = `https://picsum.photos/seed/${itemSeed}/${renderW}/${renderH}`;
+      const encodedPrompt = encodeURIComponent(prompt.trim());
+      const url = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${ratioConfig.width}&height=${ratioConfig.height}&seed=${itemSeed}&nologo=true`;
 
       return {
         id: `gen-${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 6)}`,

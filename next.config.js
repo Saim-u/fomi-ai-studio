@@ -5,6 +5,10 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
+        hostname: 'image.pollinations.ai',
+      },
+      {
+        protocol: 'https',
         hostname: 'picsum.photos',
       },
       {
