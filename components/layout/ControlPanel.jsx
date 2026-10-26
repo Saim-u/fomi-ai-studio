@@ -28,7 +28,7 @@ import Image from 'next/image';
 
 /**
  * Control Panel: Creative parameters, prompt input, model picker, and generation controls.
- * Light theme, semantic tokens, 6px buttons/inputs, 12px panel radius, no gradients.
+ * Premium black & orange theme, semantic tokens, 6px buttons/inputs, 12px panel radius.
  */
 export default function ControlPanel({
   prompt,
@@ -81,7 +81,7 @@ export default function ControlPanel({
     <aside
       aria-label="Generation controls"
       className={cn(
-        'w-full lg:w-[360px] shrink-0 bg-base-surface border border-border-subtle rounded-panel flex flex-col p-4 space-y-3.5 shadow-subtle',
+        'sidebar w-full min-w-0 max-w-full lg:w-[380px] shrink-0 bg-base-surface border border-border-subtle rounded-panel flex flex-col p-4 space-y-3.5 shadow-subtle',
         className
       )}
     >
@@ -91,28 +91,28 @@ export default function ControlPanel({
           type="button"
           onClick={() => setMode('image')}
           className={cn(
-            'flex-1 flex items-center justify-center gap-2 py-1.5 rounded-btn text-xs font-medium transition-all duration-150',
+            'flex-1 flex items-center justify-center gap-2 py-1.5 rounded-btn text-xs font-medium transition-all duration-150 border',
             mode === 'image'
-              ? 'bg-accent text-white shadow-subtle'
-              : 'text-content-secondary hover:text-content-primary'
+              ? 'bg-surface-elevated text-content-primary border-border-subtle shadow-subtle'
+              : 'text-content-secondary border-transparent hover:text-content-primary'
           )}
         >
-          <ImageIcon className="w-3.5 h-3.5" />
+          <ImageIcon className={cn('w-3.5 h-3.5', mode === 'image' && 'text-accent')} />
           <span>Image</span>
         </button>
         <button
           type="button"
           onClick={() => setMode('video')}
           className={cn(
-            'flex-1 flex items-center justify-center gap-2 py-1.5 rounded-btn text-xs font-medium transition-all duration-150',
+            'flex-1 flex items-center justify-center gap-2 py-1.5 rounded-btn text-xs font-medium transition-all duration-150 border',
             mode === 'video'
-              ? 'bg-accent text-white shadow-subtle'
-              : 'text-content-secondary hover:text-content-primary'
+              ? 'bg-surface-elevated text-content-primary border-border-subtle shadow-subtle'
+              : 'text-content-secondary border-transparent hover:text-content-primary'
           )}
         >
-          <Video className="w-3.5 h-3.5" />
+          <Video className={cn('w-3.5 h-3.5', mode === 'video' && 'text-accent')} />
           <span>Video</span>
-          <span className="text-[9px] px-1 py-0.2 rounded-btn bg-white/20 text-white font-mono">
+          <span className="text-[9px] px-1 py-0.2 rounded-btn bg-accent-subtle text-accent border border-accent/30 font-mono">
             New
           </span>
         </button>
@@ -190,10 +190,10 @@ export default function ControlPanel({
                 onClick={() => setCount(num)}
                 aria-pressed={isSelected}
                 className={cn(
-                  'py-1 rounded-btn text-xs font-medium transition-all duration-150',
+                  'py-1 rounded-btn text-xs font-medium transition-all duration-150 border',
                   isSelected
-                    ? 'bg-accent text-white shadow-subtle'
-                    : 'text-content-secondary hover:text-content-primary hover:bg-base-surface/60'
+                    ? 'bg-surface-elevated text-content-primary border-border-subtle shadow-subtle'
+                    : 'text-content-secondary border-transparent hover:text-content-primary hover:bg-surface-elevated/60'
                 )}
               >
                 {num}
@@ -365,7 +365,7 @@ export default function ControlPanel({
         </div>
       </Accordion>
 
-      {/* Primary Action Button: Solid #5E6AD2 */}
+      {/* Primary Action Button: the single orange signal */}
       <div className="pt-2 space-y-2">
         <Button
           variant="primary"
