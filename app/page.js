@@ -10,8 +10,8 @@ import SpatialCanvas from '../components/canvas/SpatialCanvas';
 import CommandBar from '../components/canvas/CommandBar';
 import Toast from '../components/ui/Toast';
 import { useGeneration } from '../hooks/useGeneration';
-import { useIsMobile, useIsTablet } from '../hooks/useMediaQuery';
-import { SlidersHorizontal, ChevronUp, ChevronDown } from 'lucide-react';
+import { useIsMobile } from '../hooks/useMediaQuery';
+import { SlidersHorizontal, ChevronUp, X } from 'lucide-react';
 
 // Dynamic imports for modals to keep initial bundle ultra-lean
 const PreviewModal = dynamic(
@@ -34,7 +34,6 @@ const CompareModal = dynamic(
  */
 export default function WorkspacePage() {
   const isMobile = useIsMobile();
-  const isTablet = useIsTablet();
 
   // Generation state & actions from custom hook
   const {
@@ -88,6 +87,16 @@ export default function WorkspacePage() {
   const showToast = useCallback((message, type = 'success') => {
     setToast({ isOpen: true, message, type });
   }, []);
+
+  // Lock page scroll while the mobile controls sheet is open
+  useEffect(() => {
+    if (!isMobile || !mobileDrawerOpen) return undefined;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isMobile, mobileDrawerOpen]);
 
   // Global hotkeys: ⌘+K (command palette) and C (compare selected nodes)
   useEffect(() => {
@@ -146,7 +155,7 @@ export default function WorkspacePage() {
   const compareNodes = results.filter((r) => selectedCompareIds.includes(r.id));
 
   return (
-    <div className="min-h-screen bg-base-bg text-content-primary flex flex-col selection:bg-accent selection:text-white">
+    <div className="min-h-screen w-full min-w-0 overflow-x-hidden bg-canvas text-content-primary flex flex-col selection:bg-accent selection:text-white">
       {/* 1. Top Navigation Bar */}
       <Navbar
         activeTool={activeTool}
@@ -156,7 +165,10 @@ export default function WorkspacePage() {
         }}
         credits={credits}
         viewMode={viewMode}
-        onToggleViewMode={(mode) => setViewMode(mode)}
+        onToggleViewMode={(nextMode) => {
+          setViewMode(nextMode);
+          setMobileDrawerOpen(false);
+        }}
         onOpenPalette={() => setIsPaletteOpen(true)}
         onOpenGallery={() => showToast('Opening Inspiration Gallery', 'info')}
         onOpenAssets={() => showToast('Opening Project Assets', 'info')}
@@ -173,7 +185,7 @@ export default function WorkspacePage() {
       {/* 3. Main Workspace Area */}
       {viewMode === 'canvas' ? (
         /* SPATIAL CANVAS MODE (The Hero Iteration Environment) */
-        <main className="flex-1 w-full max-w-[1920px] mx-auto p-3 sm:p-5 flex flex-col relative">
+        <main className="main flex-1 w-full min-w-0 min-h-0 max-w-[1920px] mx-auto p-3 sm:p-5 pb-[calc(var(--command-bar-height)+0.75rem)] md:pb-5 flex flex-col relative">
           <SpatialCanvas
             nodes={results}
             activeBranchParentId={branchParent?.id}
@@ -207,23 +219,21 @@ export default function WorkspacePage() {
         </main>
       ) : (
         /* STUDIO GRID MODE (Classic 3-column split) */
-        <main className="flex-1 max-w-[1920px] w-full mx-auto px-3 sm:px-5 py-4 flex flex-col lg:flex-row gap-5 items-start">
+        <main className="main flex-1 max-w-[1920px] w-full min-w-0 mx-auto px-3 sm:px-5 py-4 flex flex-col lg:flex-row gap-5 items-start overflow-x-hidden">
           {/* Mobile / Tablet Collapsible Drawer Pill */}
           <div className="lg:hidden w-full mb-3">
             <button
               type="button"
-              onClick={() => setMobileDrawerOpen((prev) => !prev)}
-              className="flex items-center justify-between w-full px-4 py-2.5 rounded-card bg-base-surface border border-border-subtle shadow-subtle text-xs font-medium text-content-primary"
+              onClick={() => setMobileDrawerOpen(true)}
+              aria-expanded={mobileDrawerOpen}
+              aria-haspopup="dialog"
+              className="flex items-center justify-between w-full min-w-0 px-4 py-2.5 rounded-card bg-base-surface border border-border-subtle shadow-subtle text-xs font-medium text-content-primary"
             >
-              <div className="flex items-center gap-2">
-                <SlidersHorizontal className="w-4 h-4 text-accent" />
-                <span>Generation Parameters & Prompt</span>
+              <div className="flex items-center gap-2 min-w-0">
+                <SlidersHorizontal className="w-4 h-4 text-accent shrink-0" />
+                <span className="truncate">Generation Parameters & Prompt</span>
               </div>
-              {mobileDrawerOpen ? (
-                <ChevronUp className="w-4 h-4 text-content-secondary" />
-              ) : (
-                <ChevronDown className="w-4 h-4 text-content-secondary" />
-              )}
+              <ChevronUp className="w-4 h-4 text-content-secondary shrink-0" />
             </button>
           </div>
 
@@ -254,32 +264,71 @@ export default function WorkspacePage() {
             className="hidden lg:flex sticky top-20"
           />
 
+          {/* Mobile Control Panel — slide-up bottom sheet */}
           {mobileDrawerOpen && (
-            <div className="lg:hidden w-full">
-              <ControlPanel
-                prompt={prompt}
-                setPrompt={setPrompt}
-                onRandomPrompt={setRandomPrompt}
-                mode={mode}
-                setMode={setMode}
-                count={count}
-                setCount={setCount}
-                aspectRatio={aspectRatio}
-                setAspectRatio={setAspectRatio}
-                model={model}
-                setModel={setModel}
-                style={style}
-                setStyle={setStyle}
-                seed={seed}
-                setSeed={setSeed}
-                negativePrompt={negativePrompt}
-                setNegativePrompt={setNegativePrompt}
-                guidanceScale={guidanceScale}
-                setGuidanceScale={setGuidanceScale}
-                onGenerate={handleGenerate}
-                isGenerating={isGenerating}
-                credits={credits}
+            <div
+              className="lg:hidden fixed inset-0 z-50"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Generation parameters and prompt"
+            >
+              <button
+                type="button"
+                aria-label="Close generation controls"
+                onClick={() => setMobileDrawerOpen(false)}
+                className="absolute inset-0 w-full h-full bg-black/60 backdrop-blur-sm cursor-default"
               />
+              <div className="absolute inset-x-0 bottom-0 max-h-[88dvh] rounded-t-panel bg-surface-dark border-t border-border-subtle shadow-modal flex flex-col overflow-hidden animate-slide-up">
+                {/* Visible drag handle */}
+                <div className="relative shrink-0 flex items-center justify-between px-4 pt-4 pb-2.5 border-b border-border-subtle">
+                  <span
+                    aria-hidden="true"
+                    className="absolute left-1/2 top-2 h-1 w-10 -translate-x-1/2 rounded-full bg-border-strong"
+                  />
+                  <div className="flex items-center gap-2 min-w-0">
+                    <SlidersHorizontal className="w-4 h-4 text-accent shrink-0" />
+                    <h2 className="text-sm font-semibold text-content-primary truncate">
+                      Generation Parameters
+                    </h2>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setMobileDrawerOpen(false)}
+                    aria-label="Close generation controls"
+                    className="p-1.5 rounded-btn text-content-secondary hover:text-content-primary hover:bg-base-subtle transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-3 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+                  <ControlPanel
+                    prompt={prompt}
+                    setPrompt={setPrompt}
+                    onRandomPrompt={setRandomPrompt}
+                    mode={mode}
+                    setMode={setMode}
+                    count={count}
+                    setCount={setCount}
+                    aspectRatio={aspectRatio}
+                    setAspectRatio={setAspectRatio}
+                    model={model}
+                    setModel={setModel}
+                    style={style}
+                    setStyle={setStyle}
+                    seed={seed}
+                    setSeed={setSeed}
+                    negativePrompt={negativePrompt}
+                    setNegativePrompt={setNegativePrompt}
+                    guidanceScale={guidanceScale}
+                    setGuidanceScale={setGuidanceScale}
+                    onGenerate={handleGenerate}
+                    isGenerating={isGenerating}
+                    credits={credits}
+                    className="!border-0 !shadow-none !rounded-none !bg-transparent p-1"
+                  />
+                </div>
+              </div>
             </div>
           )}
 
