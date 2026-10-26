@@ -26,26 +26,26 @@ export const metadata = {
 export const viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
+  maximumScale: 5,
 };
 
 /**
  * Root Layout Component
  * Configures professional DM Sans & JetBrains Mono typography,
- * light theme palette, and accessible keyboard skip link.
+ * the premium black & orange editorial palette, and accessible keyboard skip link.
  */
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${dmSans.variable} ${jetbrainsMono.variable} scroll-smooth`}>
-      <body className="min-h-screen bg-[#FAFAFA] text-[#1A1A1A] antialiased font-sans selection:bg-accent selection:text-white flex flex-col">
+      <body className="min-h-screen min-w-0 overflow-x-hidden bg-canvas text-content-primary antialiased font-sans selection:bg-accent selection:text-white flex flex-col">
         {/* Accessibility skip-to-content anchor */}
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-accent focus:text-white focus:rounded-btn focus:shadow-elevated focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-white"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-accent focus:text-white focus:rounded-btn focus:shadow-elevated focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-canvas"
         >
           Skip to main workspace
         </a>
-        <div className="flex-1 flex flex-col w-full">{children}</div>
+        <div className="flex-1 flex flex-col w-full min-w-0">{children}</div>
       </body>
     </html>
   );
