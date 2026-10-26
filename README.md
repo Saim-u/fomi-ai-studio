@@ -34,7 +34,7 @@ Inspired by the creative workflows of professional designers, art directors, and
 
 - **Next.js 14 App Router:** Clean client/server boundaries with route handlers (`/api/generate` and `/api/history`).
 - **JavaScript (ES6+):** Pure JavaScript without TypeScript overhead.
-- **Tailwind CSS:** Dark studio theme (`#07090E`), custom glowing borders, glassmorphism, and shimmer animations.
+- **Tailwind CSS:** Premium black & orange editorial theme (`#0A0A0A` canvas, `#171717` surfaces, `#EA580C` accent), 1px borders, ambient shadows, and shimmer animations.
 - **Custom UI Components:** Zero external UI libraries (`Button`, `Dropdown`, `Accordion`, `Skeleton`, `Toast`).
 - **Performance:** Dynamic imports for heavy modals, `next/image` optimization with responsive `sizes`, memoized result cards.
 - **Accessibility:** Skip-to-content anchor, semantic landmarks, full keyboard navigation (arrows, Enter, Esc), ARIA attributes.
