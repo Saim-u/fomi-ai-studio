@@ -6,7 +6,7 @@ import { cn } from '../../lib/utils';
 
 /**
  * Accessible Dropdown Component with keyboard navigation.
- * Light theme, semantic tokens, 6px input radius, 8px menu radius.
+ * Premium dark theme, semantic tokens, 6px input radius, 8px menu radius.
  *
  * @param {Object} props
  * @param {Array<{id: string, name: string, badge?: string, description?: string}>} props.options
@@ -113,7 +113,7 @@ export default function Dropdown({
           'w-full flex items-center justify-between px-3 py-2 rounded-btn text-xs sm:text-sm',
           'bg-base-surface hover:bg-base-subtle border border-border-subtle hover:border-border-strong',
           'text-content-primary shadow-subtle transition-all duration-150',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-white',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-canvas',
           isOpen && 'border-accent ring-2 ring-accent/20'
         )}
       >

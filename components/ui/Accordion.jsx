@@ -6,7 +6,7 @@ import { cn } from '../../lib/utils';
 
 /**
  * Accessible Accordion component with smooth animated reveal.
- * Light theme, semantic tokens, 8px card radius.
+ * Premium dark theme, semantic tokens, 8px card radius.
  *
  * @param {Object} props
  * @param {string} props.title - Accordion header title

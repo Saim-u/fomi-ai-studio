@@ -3,8 +3,7 @@ import { cn } from '../../lib/utils';
 
 /**
  * Skeleton shimmer component for loading states.
- * Premium light theme shimmer (#F4F4F5 to #E5E5E5) with subtle white specular highlight.
- * No dark shimmers or dark overlays.
+ * Dark shimmer (#1F1F1F) with a subtle low-opacity specular highlight.
  *
  * @param {Object} props
  * @param {'card' | 'thumbnail' | 'text' | 'circle' | 'rect'} [props.variant='rect']

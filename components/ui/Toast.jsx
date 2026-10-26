@@ -6,7 +6,7 @@ import { cn } from '../../lib/utils';
 
 /**
  * Toast notification component.
- * Light surface, clean 1px border, floating shadow, accessible WCAG AA contrast.
+ * Elevated dark surface, clean 1px border, floating shadow, accessible contrast.
  *
  * @param {Object} props
  * @param {string} props.message
@@ -39,9 +39,9 @@ export default function Toast({
   };
 
   const borders = {
-    success: 'border-[#BBF7D0] bg-base-surface text-content-primary shadow-floating',
-    error: 'border-[#FECACA] bg-base-surface text-content-primary shadow-floating',
-    info: 'border-[#C7CEF6] bg-base-surface text-content-primary shadow-floating',
+    success: 'border-success/40 bg-surface-elevated text-content-primary shadow-floating',
+    error: 'border-danger/40 bg-surface-elevated text-content-primary shadow-floating',
+    info: 'border-accent/40 bg-surface-elevated text-content-primary shadow-floating',
   };
 
   return (
@@ -49,7 +49,7 @@ export default function Toast({
       role="status"
       aria-live="polite"
       className={cn(
-        'fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-panel border text-sm max-w-sm',
+        'fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] right-3 left-3 sm:left-auto sm:right-6 sm:bottom-6 z-50 flex items-center gap-3 px-4 py-3 rounded-panel border text-sm max-w-none sm:max-w-sm',
         'animate-in fade-in slide-in-from-bottom-5 duration-150 ease-premium',
         borders[type] || borders.success
       )}

@@ -6,7 +6,7 @@ import { cn } from '../../lib/utils';
 
 /**
  * Reusable Button Component
- * Light theme, tiered 6px border-radius, accessible focus ring, no gradient slop.
+ * Premium black & orange theme, tiered 6px radius, accessible focus ring.
  *
  * @param {Object} props
  * @param {'primary' | 'secondary' | 'ghost' | 'outline' | 'danger'} [props.variant='primary']
@@ -32,14 +32,14 @@ export default function Button({
   ...rest
 }) {
   const baseStyles =
-    'relative inline-flex items-center justify-center font-medium transition-all duration-150 ease-premium rounded-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-white select-none active:scale-[0.98]';
+    'relative inline-flex items-center justify-center font-medium transition-all duration-150 ease-premium rounded-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-canvas select-none active:scale-[0.98]';
 
-  // Map any legacy 'gradient' request directly to clean solid primary (Linear style #5E6AD2)
+  // Map any legacy 'gradient' request directly to the solid orange primary
   const resolvedVariant = variant === 'gradient' ? 'primary' : variant;
 
   const variants = {
     primary:
-      'bg-accent hover:bg-accent-hover text-white shadow-subtle border border-accent/20 active:bg-accent-hover',
+      'bg-accent hover:bg-accent-hover text-white shadow-subtle border border-accent/30 active:bg-accent-hover',
     secondary:
       'bg-base-surface hover:bg-base-subtle text-content-primary border border-border-subtle hover:border-border-strong shadow-subtle active:bg-base-muted',
     ghost:
