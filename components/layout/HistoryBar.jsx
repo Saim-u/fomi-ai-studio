@@ -8,7 +8,7 @@ import Skeleton from '../ui/Skeleton';
 
 /**
  * Top horizontal filmstrip / history roll of past creations.
- * Light theme, 1px border, subtle lift on hover, 2px accent ring with offset when active.
+ * Premium dark theme, 1px border, subtle lift on hover, 2px accent ring with offset when active.
  *
  * @param {Object} props
  * @param {Array<Object>} props.items
@@ -34,9 +34,9 @@ export default function HistoryBar({
   return (
     <section
       aria-label="Recent generations history"
-      className="w-full bg-base-surface border-b border-border-subtle py-2 px-3 sm:px-5 select-none relative"
+      className="w-full min-w-0 bg-base-surface border-b border-border-subtle py-2 px-3 sm:px-5 select-none relative"
     >
-      <div className="max-w-[1920px] mx-auto flex items-center gap-2.5">
+      <div className="max-w-[1920px] mx-auto flex items-center gap-2.5 min-w-0">
         {/* Title Tag */}
         <div className="hidden lg:flex items-center gap-1.5 text-xs text-content-secondary shrink-0 font-medium tracking-wide pr-3 border-r border-border-subtle">
           <History className="w-3.5 h-3.5 text-content-secondary" />
@@ -59,7 +59,7 @@ export default function HistoryBar({
         {/* Horizontal Carousel */}
         <div
           ref={scrollContainerRef}
-          className="flex-1 flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth py-1"
+          className="flex-1 min-w-0 flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth py-1"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {isLoading
@@ -79,9 +79,9 @@ export default function HistoryBar({
                     onClick={() => onSelect?.(item)}
                     aria-label={`Select creation: ${item.prompt}`}
                     className={cn(
-                      'group relative w-12 h-12 sm:w-13 sm:h-13 rounded-card overflow-hidden shrink-0 border transition-all duration-150 ease-premium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-white',
+                      'group relative w-12 h-12 sm:w-13 sm:h-13 rounded-card overflow-hidden shrink-0 border transition-all duration-150 ease-premium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-canvas',
                       isActive
-                        ? 'border-accent ring-2 ring-accent ring-offset-2 ring-offset-white shadow-subtle'
+                        ? 'border-accent ring-2 ring-accent ring-offset-2 ring-offset-canvas shadow-subtle'
                         : 'border-border-subtle hover:border-accent hover:-translate-y-0.5 hover:shadow-subtle'
                     )}
                   >
@@ -95,7 +95,7 @@ export default function HistoryBar({
 
                     {/* Favorite badge */}
                     {item.isFavorite && (
-                      <span className="absolute top-1 right-1 p-0.5 rounded-full bg-white/90 backdrop-blur-xs text-rose-500 border border-border-subtle/40 shadow-xs">
+                      <span className="absolute top-1 right-1 p-0.5 rounded-full bg-canvas/85 backdrop-blur-xs text-rose-400 border border-border-subtle/60 shadow-xs">
                         <Heart className="w-2.5 h-2.5 fill-current" />
                       </span>
                     )}
