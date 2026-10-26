@@ -16,8 +16,8 @@ import { mockPrompts } from '../../lib/mockData';
 
 /**
  * WorkspaceGrid renders the creative canvas:
- * Top prompt metadata banner, responsive masonry result grid,
- * light skeleton placeholders during generation, and minimal empty state.
+ * Top prompt metadata banner, responsive result grid that collapses to one
+ * column on mobile, dark skeleton placeholders, and a minimal empty state.
  */
 export default function WorkspaceGrid({
   items = [],
@@ -64,7 +64,7 @@ export default function WorkspaceGrid({
     <section
       id="main-content"
       aria-label="Generated results canvas"
-      className="flex-1 flex flex-col min-w-0 space-y-3.5"
+      className="main-content flex-1 w-full flex flex-col min-w-0 space-y-3.5"
     >
       {/* Top Prompt Metadata Card */}
       <div className="rounded-card bg-base-surface border border-border-subtle p-3 sm:p-3.5 shadow-subtle flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -122,7 +122,7 @@ export default function WorkspaceGrid({
             aria-label="Filter favorites"
             className={`p-1.5 px-2.5 rounded-btn border transition-colors flex items-center gap-1.5 text-xs font-medium ${
               filterFavorites
-                ? 'bg-rose-50 text-rose-600 border-rose-200'
+                ? 'bg-rose-500/10 text-rose-400 border-rose-500/30'
                 : 'bg-base-subtle hover:bg-base-muted text-content-secondary hover:text-content-primary border-border-subtle'
             }`}
           >
@@ -184,7 +184,7 @@ export default function WorkspaceGrid({
         </div>
       ) : (
         /* Grid of creations */
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-3.5">
+        <div className="grid w-full min-w-0 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-3.5">
           {/* Skeleton placeholders while generating */}
           {isGenerating &&
             Array.from({ length: generatingCount }).map((_, idx) => (

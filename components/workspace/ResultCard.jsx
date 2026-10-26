@@ -14,7 +14,7 @@ import { cn, downloadImage, copyToClipboard } from '../../lib/utils';
 
 /**
  * ResultCard displays an individual generated artwork in studio grid.
- * Light surface, 1px border, 8px card radius, subtle lift on hover, no neon slop.
+ * Surface-dark card, 1px border, 8px radius, subtle lift on hover.
  */
 const ResultCard = memo(function ResultCard({
   item,
@@ -78,7 +78,7 @@ const ResultCard = memo(function ResultCard({
       className={cn(
         'group relative rounded-card overflow-hidden bg-base-surface border border-border-subtle hover:border-accent',
         'transition-all duration-150 ease-premium hover:-translate-y-0.5 hover:shadow-elevated',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-white animate-fade-up cursor-pointer',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-canvas animate-fade-up cursor-pointer',
         ratioClass
       )}
     >
@@ -97,7 +97,7 @@ const ResultCard = memo(function ResultCard({
 
       {/* Top badges: aspect ratio & favorite */}
       <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between pointer-events-none z-10">
-        <span className="px-1.5 py-0.5 rounded-btn bg-white/90 backdrop-blur-xs text-[10px] font-mono text-content-primary border border-border-subtle shadow-xs">
+        <span className="px-1.5 py-0.5 rounded-btn bg-canvas/80 backdrop-blur-sm text-[10px] font-mono text-content-primary border border-border-subtle shadow-xs">
           {item.aspectRatio}
         </span>
         <button
@@ -105,10 +105,10 @@ const ResultCard = memo(function ResultCard({
           onClick={handleFavorite}
           aria-label={item.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
           className={cn(
-            'pointer-events-auto p-1.5 rounded-btn backdrop-blur-xs transition-colors shadow-xs border',
+            'pointer-events-auto p-1.5 rounded-btn backdrop-blur-sm transition-colors shadow-xs border',
             item.isFavorite
-              ? 'bg-white text-rose-500 border-rose-200'
-              : 'bg-white/90 text-content-secondary hover:text-rose-500 border-border-subtle hover:bg-white'
+              ? 'bg-canvas text-rose-400 border-rose-500/40'
+              : 'bg-canvas/80 text-content-secondary hover:text-rose-400 border-border-subtle hover:bg-canvas'
           )}
         >
           <Heart className={cn('w-3.5 h-3.5', item.isFavorite && 'fill-current')} />
@@ -125,7 +125,7 @@ const ResultCard = memo(function ResultCard({
               onClick={handleUpscale}
               aria-label="Upscale 4x"
               title="Upscale 4x"
-              className="p-1.5 rounded-btn bg-white/90 hover:bg-accent hover:text-white text-content-primary transition-colors flex items-center gap-1 text-[11px]"
+              className="p-1.5 rounded-btn bg-surface-elevated/95 hover:bg-accent hover:text-white text-content-primary transition-colors flex items-center gap-1 text-[11px] border border-border-subtle"
             >
               <Sparkles className="w-3.5 h-3.5" />
               <span className="font-semibold text-[10px]">4X</span>
@@ -135,7 +135,7 @@ const ResultCard = memo(function ResultCard({
               onClick={handleDownload}
               aria-label="Download image"
               title="Download image"
-              className="p-1.5 rounded-btn bg-white/90 hover:bg-white text-content-primary transition-colors"
+              className="p-1.5 rounded-btn bg-surface-elevated/95 hover:bg-surface-elevated text-content-primary transition-colors border border-border-subtle"
             >
               <Download className="w-3.5 h-3.5" />
             </button>
@@ -144,7 +144,7 @@ const ResultCard = memo(function ResultCard({
               onClick={handleShare}
               aria-label="Copy image link"
               title="Copy image link"
-              className="p-1.5 rounded-btn bg-white/90 hover:bg-white text-content-primary transition-colors"
+              className="p-1.5 rounded-btn bg-surface-elevated/95 hover:bg-surface-elevated text-content-primary transition-colors border border-border-subtle"
             >
               {isCopied ? <Check className="w-3.5 h-3.5 text-success" /> : <Share2 className="w-3.5 h-3.5" />}
             </button>
@@ -158,7 +158,7 @@ const ResultCard = memo(function ResultCard({
             }}
             aria-label="Full size view"
             title="Inspect"
-            className="p-1.5 rounded-btn bg-white/90 hover:bg-white text-content-primary transition-colors"
+            className="p-1.5 rounded-btn bg-surface-elevated/95 hover:bg-surface-elevated text-content-primary transition-colors border border-border-subtle"
           >
             <ZoomIn className="w-3.5 h-3.5" />
           </button>
