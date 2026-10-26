@@ -17,8 +17,8 @@ import { AI_MODELS, ASPECT_RATIOS } from '../../lib/constants';
 
 /**
  * CommandPalette (⌘+K / Ctrl+K)
- * Pro-tier keyboard accelerator in premium light theme.
- * Backdrop blur, white rounded-panel, soft shadow, zero dark slop.
+ * Pro-tier keyboard accelerator in the premium black & orange theme.
+ * Backdrop blur, elevated dark panel, ambient shadow, orange selection signal.
  */
 export default function CommandPalette({
   isOpen,
@@ -139,15 +139,15 @@ export default function CommandPalette({
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4 bg-black/20 backdrop-blur-sm animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-150"
       onClick={onClose}
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-xl rounded-panel bg-base-surface border border-border-subtle shadow-modal overflow-hidden flex flex-col animate-in zoom-in-95 duration-150"
+        className="w-full max-w-xl rounded-panel bg-surface-elevated border border-border-subtle shadow-modal overflow-hidden flex flex-col animate-in zoom-in-95 duration-150"
       >
         {/* Search Input Bar */}
-        <div className="flex items-center gap-3 px-4 py-3 border-b border-border-subtle bg-base-surface">
+        <div className="flex items-center gap-3 px-4 py-3 border-b border-border-subtle bg-surface-elevated">
           <Search className="w-4 h-4 text-content-secondary shrink-0" />
           <input
             ref={inputRef}

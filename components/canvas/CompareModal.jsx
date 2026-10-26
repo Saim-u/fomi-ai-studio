@@ -14,7 +14,7 @@ import { cn } from '../../lib/utils';
 
 /**
  * CompareModal provides side-by-side A/B evaluation for 2 canvas nodes.
- * Premium light theme, crisp 1px borders, soft modal elevation, no dark slop.
+ * Premium black & orange theme, crisp 1px borders, soft modal elevation.
  */
 export default function CompareModal({
   isOpen,
@@ -40,12 +40,12 @@ export default function CompareModal({
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/30 backdrop-blur-sm animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-150"
       onClick={onClose}
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-5xl max-h-[92vh] rounded-panel bg-base-surface border border-border-subtle shadow-modal overflow-hidden flex flex-col p-4 sm:p-6"
+        className="relative w-full max-w-5xl max-h-[92vh] rounded-panel bg-surface-elevated border border-border-subtle shadow-modal overflow-hidden flex flex-col p-4 sm:p-6"
       >
         {/* Header */}
         <div className="flex items-center justify-between pb-3.5 border-b border-border-subtle mb-4">
