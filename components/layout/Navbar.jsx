@@ -21,11 +21,10 @@ import Image from 'next/image';
 
 /**
  * Main application header with segmented view switcher (Spatial Canvas vs Studio Grid),
- * command palette trigger, and account status in premium light theme.
+ * command palette trigger, and account status in the premium black & orange theme.
+ * Labels collapse to icons below the md breakpoint so the header never overflows.
  */
 export default function Navbar({
-  activeTool = 'image-gen',
-  onSelectTool,
   credits = 148,
   onOpenGallery,
   onOpenAssets,
@@ -36,43 +35,49 @@ export default function Navbar({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
+  const closeMobileMenu = () => setMobileMenuOpen(false);
+
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-border-subtle bg-base-surface/95 backdrop-blur-md">
-      <div className="max-w-[1920px] mx-auto px-3 sm:px-5 h-13 flex items-center justify-between gap-4">
+    <header className="sticky top-0 z-40 w-full border-b border-border-subtle bg-surface-dark/95 backdrop-blur-md">
+      <div className="max-w-[1920px] mx-auto px-3 sm:px-5 h-14 flex items-center justify-between gap-2 sm:gap-4 min-w-0">
         {/* Left: Brand / Logo */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 cursor-pointer select-none">
-            <div className="w-7 h-7 rounded-btn bg-accent flex items-center justify-center text-white shadow-subtle">
-              <span className="font-semibold text-xs tracking-tight">F</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="font-semibold text-sm tracking-tight text-content-primary">FOMI</span>
-              <span className="text-[10px] font-medium tracking-wide px-1.5 py-0.5 rounded-btn bg-base-subtle text-content-secondary border border-border-subtle">
-                Canvas
-              </span>
-            </div>
+        <div className="flex items-center gap-2 cursor-pointer select-none shrink-0 min-w-0">
+          <div className="w-7 h-7 rounded-btn bg-accent flex items-center justify-center text-white shadow-subtle shrink-0">
+            <span className="font-semibold text-xs tracking-tight">F</span>
+          </div>
+          <div className="flex items-center gap-1.5 min-w-0">
+            <span className="font-semibold text-sm tracking-tight text-content-primary">FOMI</span>
+            <span className="hidden sm:inline text-[10px] font-medium tracking-wide px-1.5 py-0.5 rounded-btn bg-base-subtle text-content-secondary border border-border-subtle">
+              Canvas
+            </span>
           </div>
         </div>
 
-        {/* Center: Segmented View Switcher (Spatial Canvas vs Studio Grid) */}
-        <div className="flex items-center p-0.5 rounded-card bg-base-subtle border border-border-subtle">
+        {/* Center: Segmented View Switcher — labels collapse to icons on mobile */}
+        <div className="flex items-center p-0.5 rounded-card bg-base-subtle border border-border-subtle min-w-0 max-w-full overflow-x-auto scrollbar-hide shrink">
           <button
             type="button"
             onClick={() => onToggleViewMode?.('canvas')}
             aria-pressed={viewMode === 'canvas'}
+            aria-label="Spatial Canvas view"
+            title="Spatial Canvas"
             className={cn(
-              'flex items-center gap-1.5 px-3 py-1.5 rounded-btn text-xs font-medium transition-all duration-150 ease-premium',
+              'flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 rounded-btn text-xs font-medium whitespace-nowrap transition-all duration-150 ease-premium border',
               viewMode === 'canvas'
-                ? 'bg-accent text-white shadow-subtle'
-                : 'text-content-secondary hover:text-content-primary hover:bg-base-surface/50'
+                ? 'bg-surface-elevated text-content-primary border-border-subtle shadow-subtle'
+                : 'text-content-secondary border-transparent hover:text-content-primary hover:bg-surface-elevated/60'
             )}
           >
-            <GitBranch className="w-3.5 h-3.5" />
-            <span>Spatial Canvas</span>
-            <span className={cn(
-              'text-[9px] px-1 py-0.2 rounded-btn font-mono hidden sm:inline',
-              viewMode === 'canvas' ? 'bg-white/20 text-white' : 'bg-base-muted text-content-secondary'
-            )}>
+            <GitBranch className={cn('w-3.5 h-3.5', viewMode === 'canvas' && 'text-accent')} />
+            <span className="hidden md:inline">Spatial Canvas</span>
+            <span
+              className={cn(
+                'text-[9px] px-1 py-0.2 rounded-btn font-mono hidden lg:inline border',
+                viewMode === 'canvas'
+                  ? 'bg-accent-subtle text-accent border-accent/30'
+                  : 'bg-base-muted text-content-secondary border-border-subtle'
+              )}
+            >
               Tree
             </span>
           </button>
@@ -81,20 +86,22 @@ export default function Navbar({
             type="button"
             onClick={() => onToggleViewMode?.('grid')}
             aria-pressed={viewMode === 'grid'}
+            aria-label="Studio Grid view"
+            title="Studio Grid"
             className={cn(
-              'flex items-center gap-1.5 px-3 py-1.5 rounded-btn text-xs font-medium transition-all duration-150 ease-premium',
+              'flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 rounded-btn text-xs font-medium whitespace-nowrap transition-all duration-150 ease-premium border',
               viewMode === 'grid'
-                ? 'bg-accent text-white shadow-subtle'
-                : 'text-content-secondary hover:text-content-primary hover:bg-base-surface/50'
+                ? 'bg-surface-elevated text-content-primary border-border-subtle shadow-subtle'
+                : 'text-content-secondary border-transparent hover:text-content-primary hover:bg-surface-elevated/60'
             )}
           >
-            <LayoutGrid className="w-3.5 h-3.5" />
-            <span>Studio Grid</span>
+            <LayoutGrid className={cn('w-3.5 h-3.5', viewMode === 'grid' && 'text-accent')} />
+            <span className="hidden md:inline">Studio Grid</span>
           </button>
         </div>
 
         {/* Right: Actions, Credits & Profile */}
-        <div className="flex items-center gap-1.5 sm:gap-2">
+        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
           {/* Command Palette Trigger (⌘K) */}
           <button
             type="button"
@@ -104,13 +111,13 @@ export default function Navbar({
           >
             <Search className="w-3.5 h-3.5 text-content-secondary" />
             <span className="font-normal">Search commands</span>
-            <kbd className="px-1.5 py-0.5 rounded-[4px] bg-base-surface text-[10px] font-mono text-content-secondary border border-border-subtle">
+            <kbd className="px-1.5 py-0.5 rounded-[4px] bg-surface-elevated text-[10px] font-mono text-content-secondary border border-border-subtle">
               ⌘K
             </kbd>
           </button>
 
-          {/* Credits indicator: Subtle gray text, not a glowing badge */}
-          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-btn bg-base-subtle border border-border-subtle text-xs text-content-secondary font-normal">
+          {/* Credits indicator: subtle, not a glowing badge */}
+          <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-btn bg-base-subtle border border-border-subtle text-xs text-content-secondary font-normal">
             <CreditCard className="w-3.5 h-3.5 text-content-secondary" />
             <span className="font-medium text-content-primary">{credits}</span>
             <span className="text-[11px] text-content-secondary">credits</span>
@@ -171,7 +178,7 @@ export default function Navbar({
 
             {/* Profile Dropdown Menu */}
             {userDropdownOpen && (
-              <div className="absolute right-0 mt-1.5 w-52 rounded-panel bg-base-elevated border border-border-subtle p-1 shadow-floating z-50 animate-in fade-in zoom-in-95 duration-100">
+              <div className="absolute right-0 mt-1.5 w-52 rounded-panel bg-surface-elevated border border-border-subtle p-1 shadow-floating z-50 animate-in fade-in zoom-in-95 duration-100">
                 <div className="px-3 py-2 border-b border-border-subtle mb-1">
                   <p className="text-xs font-medium text-content-primary">Sana (Fashion Pro)</p>
                   <p className="text-[11px] text-content-secondary truncate">sana@fomi.art</p>
@@ -209,10 +216,11 @@ export default function Navbar({
             )}
           </div>
 
-          {/* Mobile hamburger toggle */}
+          {/* Mobile menu toggle */}
           <button
             type="button"
             aria-label="Toggle mobile menu"
+            aria-expanded={mobileMenuOpen}
             onClick={() => setMobileMenuOpen((prev) => !prev)}
             className="md:hidden p-2 rounded-btn text-content-secondary hover:text-content-primary hover:bg-base-subtle min-w-[36px] min-h-[36px] flex items-center justify-center"
           >
@@ -220,6 +228,55 @@ export default function Navbar({
           </button>
         </div>
       </div>
+
+      {/* Mobile action sheet */}
+      {mobileMenuOpen && (
+        <div className="md:hidden absolute inset-x-0 top-full border-b border-border-subtle bg-surface-elevated shadow-floating animate-in fade-in slide-in-from-top-2 duration-150">
+          <div className="p-3 space-y-1">
+            <div className="flex items-center justify-between px-3 py-2 rounded-btn bg-base-subtle border border-border-subtle text-xs text-content-secondary">
+              <span className="flex items-center gap-2">
+                <CreditCard className="w-3.5 h-3.5" />
+                <span>Credit balance</span>
+              </span>
+              <span className="font-medium text-content-primary">{credits}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                onOpenPalette?.();
+                closeMobileMenu();
+              }}
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-btn text-xs text-content-primary hover:bg-base-subtle transition-colors"
+            >
+              <Search className="w-4 h-4 text-content-secondary" />
+              <span>Search commands</span>
+              <kbd className="ml-auto text-[10px] font-mono text-content-secondary">⌘K</kbd>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                onOpenGallery?.();
+                closeMobileMenu();
+              }}
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-btn text-xs text-content-primary hover:bg-base-subtle transition-colors"
+            >
+              <Images className="w-4 h-4 text-content-secondary" />
+              <span>Inspiration Gallery</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                onOpenAssets?.();
+                closeMobileMenu();
+              }}
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-btn text-xs text-content-primary hover:bg-base-subtle transition-colors"
+            >
+              <FolderKanban className="w-4 h-4 text-content-secondary" />
+              <span>Project Assets</span>
+            </button>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
