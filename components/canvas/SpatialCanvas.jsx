@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import {
   ZoomIn,
@@ -13,11 +13,15 @@ import {
 import { cn, downloadImage } from '../../lib/utils';
 import Button from '../ui/Button';
 
+const MIN_ZOOM = 0.4;
+const MAX_ZOOM = 2.2;
+const clampZoom = (value) => Math.min(Math.max(value, MIN_ZOOM), MAX_ZOOM);
+
 /**
  * SpatialCanvas
  * An interactive, pannable and zoomable visual tree canvas.
- * Light theme dot grid, crisp white node cards with 1px borders,
- * clean Bezier branch curves with animated dash hover, no glows.
+ * Dark dot grid, surface-dark node cards with 1px borders, clean Bezier branch
+ * curves, and native-feeling single-finger pan + pinch-to-zoom on touch devices.
  */
 export default function SpatialCanvas({
   nodes = [],
@@ -32,11 +36,64 @@ export default function SpatialCanvas({
   isGenerating = false,
 }) {
   const containerRef = useRef(null);
+  const pointersRef = useRef(new Map());
+  const gestureRef = useRef({ mode: null });
+  const panRef = useRef({ x: 32, y: 32 });
+  const zoomRef = useRef(1);
+
   const [zoom, setZoom] = useState(1);
-  const [pan, setPan] = useState({ x: 60, y: 40 });
+  const [pan, setPan] = useState({ x: 32, y: 32 });
   const [isPanning, setIsPanning] = useState(false);
-  const [startPan, setStartPan] = useState({ x: 0, y: 0 });
   const [hoveredEdge, setHoveredEdge] = useState(null);
+
+  const updatePan = useCallback((next) => {
+    panRef.current = next;
+    setPan(next);
+  }, []);
+
+  const updateZoom = useCallback((next) => {
+    const clamped = clampZoom(next);
+    zoomRef.current = clamped;
+    setZoom(clamped);
+    return clamped;
+  }, []);
+
+  // Give mobile a tighter initial framing so the first node is fully visible
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (window.matchMedia('(max-width: 767px)').matches) {
+      updatePan({ x: 14, y: 18 });
+      updateZoom(0.9);
+    }
+  }, [updatePan, updateZoom]);
+
+  // Native non-passive wheel listener for ctrl/⌘ + wheel zoom
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const handleWheel = (e) => {
+      if (!(e.ctrlKey || e.metaKey)) return;
+      e.preventDefault();
+
+      const rect = el.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      const factor = e.deltaY < 0 ? 1.08 : 0.92;
+      const previousZoom = zoomRef.current;
+      const nextZoom = updateZoom(previousZoom * factor);
+      const scale = nextZoom / previousZoom;
+      const currentPan = panRef.current;
+
+      updatePan({
+        x: mx - (mx - currentPan.x) * scale,
+        y: my - (my - currentPan.y) * scale,
+      });
+    };
+
+    el.addEventListener('wheel', handleWheel, { passive: false });
+    return () => el.removeEventListener('wheel', handleWheel);
+  }, [updatePan, updateZoom]);
 
   // Calculate layout coordinates for nodes in a clean spatial tree
   const positionedNodes = useMemo(() => {
@@ -49,7 +106,7 @@ export default function SpatialCanvas({
       let x, y;
       if (parent) {
         // Child branch node: offset to the right, staggered vertically
-        const siblingIndex = (parent.childCount || 0);
+        const siblingIndex = parent.childCount || 0;
         parent.childCount = siblingIndex + 1;
         x = parent.x + 320;
         y = parent.y + siblingIndex * 260 - 40;
@@ -73,60 +130,186 @@ export default function SpatialCanvas({
     });
   }, [nodes]);
 
-  // Handle panning with mouse drag
-  const handleMouseDown = (e) => {
-    if (e.target.closest('button, input, a, article')) return;
-    setIsPanning(true);
-    setStartPan({ x: e.clientX - pan.x, y: e.clientY - pan.y });
-  };
+  const getTouchPointers = () =>
+    Array.from(pointersRef.current.values()).filter((p) => p.pointerType === 'touch');
 
-  const handleMouseMove = (e) => {
-    if (!isPanning) return;
-    setPan({
-      x: e.clientX - startPan.x,
-      y: e.clientY - startPan.y,
+  const handlePointerDown = (e) => {
+    const isTouch = e.pointerType === 'touch';
+    const isInteractive = Boolean(
+      e.target.closest('button, input, a, article, label, [role="button"]')
+    );
+
+    if (!isTouch && e.button !== 0) return;
+
+    if (isTouch) {
+      pointersRef.current.set(e.pointerId, {
+        x: e.clientX,
+        y: e.clientY,
+        pointerType: e.pointerType,
+      });
+
+      const touches = getTouchPointers();
+
+      if (touches.length === 1) {
+        if (isInteractive) return;
+        gestureRef.current = {
+          mode: 'pan',
+          startX: e.clientX,
+          startY: e.clientY,
+          startPan: panRef.current,
+        };
+        setIsPanning(true);
+      } else if (touches.length === 2) {
+        const [a, b] = touches;
+        gestureRef.current = {
+          mode: 'pinch',
+          startDistance: Math.hypot(b.x - a.x, b.y - a.y) || 1,
+          startZoom: zoomRef.current,
+          startCenter: { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 },
+          startPan: panRef.current,
+        };
+        setIsPanning(false);
+      }
+      return;
+    }
+
+    if (isInteractive) return;
+
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+    pointersRef.current.set(e.pointerId, {
+      x: e.clientX,
+      y: e.clientY,
+      pointerType: e.pointerType,
     });
+    gestureRef.current = {
+      mode: 'pan',
+      startX: e.clientX,
+      startY: e.clientY,
+      startPan: panRef.current,
+    };
+    setIsPanning(true);
   };
 
-  const handleMouseUp = () => {
-    setIsPanning(false);
-  };
+  const handlePointerMove = (e) => {
+    if (!pointersRef.current.has(e.pointerId)) return;
 
-  const handleWheel = (e) => {
-    if (e.ctrlKey || e.metaKey) {
-      e.preventDefault();
-      const zoomFactor = e.deltaY < 0 ? 1.08 : 0.92;
-      setZoom((prev) => Math.min(Math.max(prev * zoomFactor, 0.4), 2.2));
+    pointersRef.current.set(e.pointerId, {
+      x: e.clientX,
+      y: e.clientY,
+      pointerType: e.pointerType,
+    });
+
+    const gesture = gestureRef.current;
+
+    if (gesture.mode === 'pinch') {
+      const touches = getTouchPointers();
+      if (touches.length < 2) return;
+
+      const [a, b] = touches;
+      const distance = Math.hypot(b.x - a.x, b.y - a.y) || 1;
+      const center = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+      const nextZoom = clampZoom(gesture.startZoom * (distance / gesture.startDistance));
+      const scale = nextZoom / gesture.startZoom;
+
+      zoomRef.current = nextZoom;
+      setZoom(nextZoom);
+      updatePan({
+        x: center.x - (gesture.startCenter.x - gesture.startPan.x) * scale,
+        y: center.y - (gesture.startCenter.y - gesture.startPan.y) * scale,
+      });
+      return;
+    }
+
+    if (gesture.mode === 'pan') {
+      updatePan({
+        x: gesture.startPan.x + (e.clientX - gesture.startX),
+        y: gesture.startPan.y + (e.clientY - gesture.startY),
+      });
     }
   };
 
+  const handlePointerEnd = (e) => {
+    pointersRef.current.delete(e.pointerId);
+
+    if (e.pointerType !== 'touch') {
+      gestureRef.current = { mode: null };
+      setIsPanning(false);
+      return;
+    }
+
+    const touches = getTouchPointers();
+
+    if (touches.length === 1) {
+      const [remaining] = touches;
+      gestureRef.current = {
+        mode: 'pan',
+        startX: remaining.x,
+        startY: remaining.y,
+        startPan: panRef.current,
+      };
+      setIsPanning(true);
+    } else if (touches.length >= 2) {
+      const [a, b] = touches;
+      gestureRef.current = {
+        mode: 'pinch',
+        startDistance: Math.hypot(b.x - a.x, b.y - a.y) || 1,
+        startZoom: zoomRef.current,
+        startCenter: { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 },
+        startPan: panRef.current,
+      };
+      setIsPanning(false);
+    } else {
+      gestureRef.current = { mode: null };
+      setIsPanning(false);
+    }
+  };
+
+  const zoomByStep = (delta) => {
+    const previousZoom = zoomRef.current;
+    const nextZoom = updateZoom(previousZoom + delta);
+    const scale = nextZoom / previousZoom;
+    const el = containerRef.current;
+    const cx = el ? el.clientWidth / 2 : 0;
+    const cy = el ? el.clientHeight / 2 : 0;
+    const currentPan = panRef.current;
+    updatePan({
+      x: cx - (cx - currentPan.x) * scale,
+      y: cy - (cy - currentPan.y) * scale,
+    });
+  };
+
   const resetView = () => {
-    setZoom(1);
-    setPan({ x: 60, y: 40 });
+    updateZoom(1);
+    updatePan({ x: 32, y: 32 });
   };
 
   return (
     <div
       ref={containerRef}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onWheel={handleWheel}
+      role="application"
+      aria-label="Spatial canvas. Drag to pan and pinch to zoom."
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerEnd}
+      onPointerCancel={handlePointerEnd}
       className={cn(
-        'relative flex-1 w-full min-h-[calc(100dvh-140px)] overflow-auto rounded-panel select-none',
-        'bg-[#FAFAFA] border border-border-subtle shadow-subtle cursor-grab active:cursor-grabbing'
+        'main-content relative flex-1 w-full min-w-0 overflow-hidden rounded-panel select-none touch-none',
+        'min-h-[calc(100dvh-15rem)] md:min-h-[calc(100dvh-180px)]',
+        'bg-canvas border border-border-subtle shadow-subtle cursor-grab active:cursor-grabbing'
       )}
       style={{
-        backgroundImage: 'radial-gradient(circle, #E5E5E5 1.2px, transparent 1.2px)',
+        backgroundImage: 'radial-gradient(circle, #2E2E2E 1px, transparent 1px)',
         backgroundSize: `${28 * zoom}px ${28 * zoom}px`,
         backgroundPosition: `${pan.x}px ${pan.y}px`,
+        touchAction: 'none',
+        overscrollBehavior: 'contain',
       }}
     >
       {/* Canvas Floating Navigation Controls */}
-      <div className="absolute top-4 right-4 z-30 flex items-center gap-1 p-1 rounded-card bg-base-surface/95 backdrop-blur-md border border-border-subtle shadow-elevated">
+      <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-30 flex items-center gap-1 p-1 rounded-card bg-surface-elevated/95 backdrop-blur-md border border-border-subtle shadow-elevated">
         <button
           type="button"
-          onClick={() => setZoom((z) => Math.min(z + 0.15, 2.0))}
+          onClick={() => zoomByStep(0.15)}
           title="Zoom In"
           aria-label="Zoom In"
           className="p-1.5 rounded-btn text-content-secondary hover:text-content-primary hover:bg-base-subtle transition-colors"
@@ -135,7 +318,7 @@ export default function SpatialCanvas({
         </button>
         <button
           type="button"
-          onClick={() => setZoom((z) => Math.max(z - 0.15, 0.5))}
+          onClick={() => zoomByStep(-0.15)}
           title="Zoom Out"
           aria-label="Zoom Out"
           className="p-1.5 rounded-btn text-content-secondary hover:text-content-primary hover:bg-base-subtle transition-colors"
@@ -155,10 +338,10 @@ export default function SpatialCanvas({
       </div>
 
       {/* Canvas Top-Left Title Pill */}
-      <div className="absolute top-4 left-4 z-30 flex items-center gap-2 p-1.5 px-3 rounded-card bg-base-surface/95 backdrop-blur-md border border-border-subtle shadow-elevated text-xs">
-        <GitBranch className="w-4 h-4 text-accent" />
-        <span className="font-medium text-content-primary">Iteration Trees</span>
-        <span className="text-[10px] px-1.5 py-0.2 rounded-btn bg-accent-subtle text-accent font-mono font-medium border border-accent/20">
+      <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-30 flex items-center gap-2 p-1.5 px-2.5 sm:px-3 rounded-card bg-surface-elevated/95 backdrop-blur-md border border-border-subtle shadow-elevated text-xs">
+        <GitBranch className="w-4 h-4 text-accent shrink-0" />
+        <span className="font-medium text-content-primary hidden sm:inline">Iteration Trees</span>
+        <span className="text-[10px] px-1.5 py-0.2 rounded-btn bg-accent-subtle text-accent font-mono font-medium border border-accent/30 whitespace-nowrap">
           {nodes.length} Nodes
         </span>
       </div>
@@ -188,7 +371,7 @@ export default function SpatialCanvas({
             const isHovered = hoveredEdge === edgeKey;
             const isActive = parent.id === activeBranchParentId || node.id === activeBranchParentId;
 
-            const strokeColor = isActive ? '#5E6AD2' : isHovered ? '#5E6AD2' : '#D1D5DB';
+            const strokeColor = isActive || isHovered ? '#EA580C' : '#404040';
 
             return (
               <g
@@ -242,9 +425,9 @@ export default function SpatialCanvas({
                 width: `${node.width}px`,
               }}
               className={cn(
-                'absolute rounded-card bg-base-surface border p-3 flex flex-col gap-2.5 transition-all duration-150 ease-premium group z-10',
+                'absolute rounded-card bg-surface-dark border p-3 flex flex-col gap-2.5 transition-all duration-150 ease-premium group z-10',
                 isBranchParent
-                  ? 'border-accent ring-2 ring-accent ring-offset-2 ring-offset-white shadow-elevated'
+                  ? 'border-accent ring-2 ring-accent ring-offset-2 ring-offset-canvas shadow-elevated'
                   : isCompareSelected
                   ? 'border-accent ring-2 ring-accent/40 shadow-elevated'
                   : 'border-border-subtle hover:border-accent hover:shadow-elevated hover:-translate-y-0.5'
@@ -275,7 +458,7 @@ export default function SpatialCanvas({
                     type="checkbox"
                     checked={isCompareSelected}
                     onChange={() => onToggleCompare?.(node.id)}
-                    className="w-3.5 h-3.5 rounded-[4px] border-border-strong text-accent focus:ring-accent focus:ring-offset-0 cursor-pointer"
+                    className="w-3.5 h-3.5 rounded-[4px] border-border-strong bg-surface-elevated text-accent focus:ring-accent focus:ring-offset-0 cursor-pointer"
                   />
                   <span className="text-[10px] text-content-secondary">Compare</span>
                 </label>
@@ -293,10 +476,10 @@ export default function SpatialCanvas({
                   sizes="260px"
                   className="object-cover transition-transform duration-200 group-hover/img:scale-105"
                 />
-                <div className="absolute inset-0 bg-black/35 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
+                <div className="absolute inset-0 bg-black/45 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
                   <Eye className="w-5 h-5 text-white" />
                 </div>
-                <span className="absolute bottom-1.5 left-1.5 px-1.5 py-0.2 rounded-btn bg-black/70 text-[9px] font-mono text-white">
+                <span className="absolute bottom-1.5 left-1.5 px-1.5 py-0.2 rounded-btn bg-canvas/80 backdrop-blur-sm border border-border-subtle text-[9px] font-mono text-content-primary">
                   {node.aspectRatio}
                 </span>
               </div>
