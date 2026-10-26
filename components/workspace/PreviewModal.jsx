@@ -18,7 +18,7 @@ import Button from '../ui/Button';
 
 /**
  * High-fidelity Inspector / Preview Modal
- * Light theme, focus trap, keyboard cycling (Left/Right/Esc), accessible WCAG AA.
+ * Premium black & orange theme, focus trap, keyboard cycling (Left/Right/Esc).
  */
 export default function PreviewModal({
   isOpen,
@@ -103,7 +103,7 @@ export default function PreviewModal({
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-prompt-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/30 backdrop-blur-sm animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-150"
       onClick={onClose}
     >
       {/* Modal Dialog Content */}
@@ -112,7 +112,7 @@ export default function PreviewModal({
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
         className={cn(
-          'relative w-full max-w-5xl max-h-[92vh] rounded-panel bg-base-surface border border-border-subtle shadow-modal overflow-hidden flex flex-col lg:flex-row',
+          'relative w-full max-w-5xl max-h-[92vh] rounded-panel bg-surface-elevated border border-border-subtle shadow-modal overflow-hidden flex flex-col lg:flex-row',
           'animate-in zoom-in-95 duration-150 focus:outline-none'
         )}
       >
@@ -127,7 +127,7 @@ export default function PreviewModal({
         </button>
 
         {/* Left Side: Large Image Viewport + Nav Controls */}
-        <div className="relative flex-1 bg-base-subtle flex items-center justify-center min-h-[340px] lg:min-h-[540px] p-4 select-none">
+        <div className="relative flex-1 bg-base-subtle flex items-center justify-center min-h-[220px] sm:min-h-[340px] lg:min-h-[540px] p-3 sm:p-4 select-none">
           <div className="relative w-full h-full max-h-[75vh] flex items-center justify-center">
             <Image
               src={item.url}
